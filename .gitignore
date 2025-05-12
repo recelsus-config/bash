@@ -1,0 +1,13 @@
+*
+!.gitignore
+!README.md
+
+!bashrc
+!alias
+!environment.example
+
+!scripts/
+!scripts/*.sh
+
+!settings/
+!settings/*.sh

@@ -1,0 +1,4 @@
+# vim: ft=sh
+
+alias ls="ls --color=auto"
+alias discordo="discordo --token $DISCORD_TOKEN"

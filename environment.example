@@ -1,0 +1,8 @@
+# vim: ft=sh
+
+export OPENAI_API_KEY=
+export GEMINI_API_KEY=
+export DISCORD_TOKEN=
+export KEEP_ENDPOINT=
+export NVIM_ENV=minimal
+
