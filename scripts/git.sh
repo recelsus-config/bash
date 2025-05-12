@@ -7,12 +7,10 @@ git-update() {
     "$HOME/.vim"
     "$HOME/.config/nvim"
     "$HOME/.config/tmux"
-    "$HOME/.config/aichat"
     "$HOME/.config/bash"
     "$HOME/.config/ghostty"
     "$HOME/.config/i3"
     "$HOME/.config/aerospace"
-    "$HOME/.config/openbox"
   )
 
   for dir in "${directories[@]}"; do
