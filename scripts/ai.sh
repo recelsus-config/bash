@@ -3,7 +3,6 @@
 ##
 # Request wrapper
 ##
-
 ai-request() {
   local prompt="$1"
   local input="$2"
@@ -43,7 +42,7 @@ parse_language_flag() {
   done
 
   if [ -n "$use_language" ]; then
-    echo -e "\nOutput in ${use_language^}. Please generate the result under the assumption that the intended reader is a ${use_language} speaker."
+    echo -e "\n\nOutput in ${use_language^}. \nPlease generate the result under the assumption that the intended reader is a ${use_language} speaker."
   fi
 }
 
@@ -94,7 +93,6 @@ aitrans() {
 ##
 # Question and Answer
 ##
-
 aiq() {
   local input=""
   if [ -t 0 ]; then
@@ -112,6 +110,9 @@ aiq() {
   ai-request "$prompt" "$input"
 }
 
+##
+# Code Documentation Generator
+##
 aidoc() {
   local input=""
   local args=("$@")
@@ -137,6 +138,9 @@ aidoc() {
   ai-request "$prompt" "$input"
 }
 
+##
+# Full Code Documentation Generator
+##
 aidoc-full() {
   local input=""
   local args=("$@")
@@ -153,7 +157,7 @@ aidoc-full() {
   fi
 
   local prompt="You are given a source code file that may contain one or more import statements. Based on the imported modules and the structure of the code, infer the purpose of the application and generate a concise, developer-friendly README.md.
-
+  
                 ## Overview
                 - Summarize what the application does (2-3 lines), based on the main logic and imported modules.
 
