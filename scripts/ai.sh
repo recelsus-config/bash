@@ -29,39 +29,51 @@ ai-request() {
 }
 
 ##
-# Commit message generator
+# Language flag
 ##
+parse_language_flag() {
+  local use_language=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      -l)
+        use_language="japanese"
+        ;;
+    esac
+    shift
+  done
 
-# Shared commit prompt (English, base)
-_ai_commit_prompt="Write a commit message for the following diff.
-
-Format:
-1. 1–3 lines summary
-2. Edited files with changes (bullet list)
-
-Example:
-Updated xxx, fixed yyy, added zzz.
-
-- xxx.cpp: fixed A, changed request()
-- yyy.hpp: fixed response
-- zzz.md: added doc
-"
-
-aicommit() {
-  local input=$(git diff --staged)
-  git commit -t <(ai-request "$_ai_commit_prompt" "$input")
+  if [ -n "$use_language" ]; then
+    echo -e "\nOutput in ${use_language^}. Please generate the result under the assumption that the intended reader is a ${use_language} speaker."
+  fi
 }
 
-aicommit-ja() {
+##
+# Commit message generator
+##
+aicommit() {
+  local args=("$@")
   local input=$(git diff --staged)
-  local prompt="$_ai_commit_prompt \n\n Please reply in Japanese."
+
+  local prompt="Write a commit message for the following diff.
+                Format:
+                1. 1–3 lines summary
+                2. Edited files with changes (bullet list)
+
+                Example:
+                Updated xxx, fixed yyy, added zzz.
+
+                - xxx.cpp: fixed A, changed request()
+                - yyy.hpp: fixed response
+                - zzz.md: added doc"
+
+  prompt+=$(parse_language_flag "${args[@]}")
+
   git commit -t <(ai-request "$prompt" "$input")
 }
 
 ##
 # Translate
 ##
-
 aitrans() {
   local input=""
   if [ -t 0 ]; then
@@ -102,24 +114,61 @@ aiq() {
 
 aidoc() {
   local input=""
+  local args=("$@")
+
   if [ -t 0 ]; then
-    input="$*"
+    input="${args[*]}"
   else
     input=$(cat)
   fi
 
   if [ -z "$input" ]; then
-    echo "Usage: echo 'your question' | aiq  or  aiq your question"
+    echo "Usage: echo 'your code' | aidoc [-l]  or  aidoc [-l] 'code string'"
     return 1
   fi
 
   local prompt="Given the following source code, generate documentation in the specified format. Keep explanations brief and clear. Focus on summarizing what the code does, and provide a usage section. Use the following format:
                 ## About the \`xxx\` Function
-                description(1-2 lines)
+                description (1-2 lines)
                 ### Usage
                 - \`command [options]\`  # short comment explaining usage"
 
+  prompt+=$(parse_language_flag "${args[@]}")
   ai-request "$prompt" "$input"
 }
 
+aidoc-full() {
+  local input=""
+  local args=("$@")
+
+  if [ -t 0 ]; then
+    input="${args[*]}"
+  else
+    input=$(cat)
+  fi
+
+  if [ -z "$input" ]; then
+    echo "Usage: cat file.ts | aidoc-full [-l]  or  aidoc-full [-l] 'source code string'"
+    return 1
+  fi
+
+  local prompt="You are given a source code file that may contain one or more import statements. Based on the imported modules and the structure of the code, infer the purpose of the application and generate a concise, developer-friendly README.md.
+
+                ## Overview
+                - Summarize what the application does (2-3 lines), based on the main logic and imported modules.
+
+                ## Features
+                - Briefly list key functionalities inferred from the code (e.g., CLI tools, HTTP server, database access, scraping, etc.)
+
+                ## Usage
+                - Provide a short example of how to use this program (e.g., \`node app.js --help\` or \`python main.py <input>\`), even if approximate.
+
+                ## Dependencies
+                - List notable third-party modules or frameworks used (based on import statements).
+
+                Avoid speculative details that aren't clearly reflected in the code. Keep all sections succinct and relevant to developers browsing the repository."
+
+  prompt+=$(parse_language_flag "${args[@]}")
+  ai-request "$prompt" "$input"
+}
 
