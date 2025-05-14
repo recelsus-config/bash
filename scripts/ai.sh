@@ -42,7 +42,7 @@ parse_language_flag() {
   done
 
   if [ -n "$use_language" ]; then
-    echo -e "\n\nOutput in ${use_language^}. \nPlease generate the result under the assumption that the intended reader is a ${use_language} speaker."
+    echo -e "\n\n***Please Output in ${use_language^}***. \nPlease generate the result under the assumption that the intended reader is a ${use_language^} speaker."
   fi
 }
 
