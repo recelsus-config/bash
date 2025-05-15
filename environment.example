@@ -1,8 +1,8 @@
 # vim: ft=sh
 
-export OPENAI_API_KEY=
-export GEMINI_API_KEY=
-export DISCORD_TOKEN=
-export KEEP_ENDPOINT=
-export NVIM_ENV=minimal
+export OPENAI_API_KEY="${OPENAI_API_KEY:-}"
+export GEMINI_API_KEY="${GEMINI_API_KEY:-}"
+export DISCORD_TOKEN="${DISCORD_TOKEN:-}"
+export KEEP_ENDPOINT="${KEEP_ENDPOINT:-}"
+export NVIM_ENV="${NVIM_ENV:-minimal}"
 
