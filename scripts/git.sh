@@ -29,3 +29,30 @@ git-update() {
   echo "Git pull operations completed."
 }
 
+git-clone() {
+  if [ -z "$GITHUB_TOKEN" ] || [ -z "$GITHUB_USER" ]; then
+    echo "[ERROR] GITHUB_TOKEN or GITHUB_USER is not set." >&2
+
+    return 1
+  fi
+
+  local repo_url="$1"
+  local auth_url=""
+
+  if [[ "$repo_url" =~ ^https://github\.com/ ]]; then
+    auth_url=$(echo "$repo_url" | sed "s|^https://|https://${GITHUB_USER}:${GITHUB_TOKEN}@|")
+
+  elif [[ "$repo_url" =~ ^git@github\.com: ]]; then
+    local https_url="https://github.com/${repo_url#git@github.com:}"
+    auth_url="https://${GITHUB_USER}:${GITHUB_TOKEN}@${https_url#https://}"
+
+  else
+    echo "[ERROR] Unsupported URL format: $repo_url" >&2
+
+    return 2
+  fi
+
+  git clone "$auth_url"
+  unset auth_url
+}
+
