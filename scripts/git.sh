@@ -57,3 +57,24 @@ git-clone() {
   unset auth_url
 }
 
+git-identity() {
+  if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    echo "[ERROR] This is not a git repository." >&2
+    return 1
+  fi
+
+  if [ -z "$GITHUB_USER" ] || [ -z "$GITHUB_EMAIL" ]; then
+    echo "[ERROR] GITHUB_USER or GITHUB_EMAIL is not set." >&2
+    return 1
+  fi
+
+  local user="${GITHUB_USER//\"/}"
+  local email="${GITHUB_EMAIL//\"/}"
+
+  git config user.name "$user"
+  git config user.email "$email"
+
+  echo "[INFO] Set git user.name to '$user'"
+  echo "[INFO] Set git user.email to '$email'"
+}
+
