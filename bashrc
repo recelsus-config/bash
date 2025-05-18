@@ -13,13 +13,8 @@ export VISUAL="$EDITOR_CANDIDATE"
 [ -f $HOME/.config/bash/settings/xdg.sh ] && source $HOME/.config/bash/settings/xdg.sh
 [ -f $HOME/.config/bash/settings/ps1.sh ] && source $HOME/.config/bash/settings/ps1.sh
 [ -f $HOME/.config/bash/settings/completions.sh ] && source $HOME/.config/bash/settings/completions.sh
-[ -f $HOME/.config/bash/settings/application-dir.sh ] && source $HOME/.config/bash/settings/application-dir.sh
 
-export PATH="$PATH":/usr/bin
-export PATH="$PATH":"$HOME"/.local/bin
-export PATH="$PATH":"$XDG_DATA_HOME"/npm/bin
-export PATH="$PATH":"$XDG_DATA_HOME"/go/bin
-export PATH="$PATH":"/snap/bin"
+export PATH="$HOME/.local/bin:$XDG_DATA_HOME/cargo/bin:$XDG_DATA_HOME/npm/bin:$XDG_DATA_HOME/go/bin:/snap/bin:$PATH"
 
 # ===============================================
 # Linux or Mac Branch
