@@ -17,5 +17,5 @@ export TERMINFO="$XDG_DATA_HOME"/terminfo
 export GNUPGHOME="$XDG_DATA_HOME"/gnupg
 export GOPATH="$XDG_DATA_HOME"/go
 export CARGO_HOME="$XDG_DATA_HOME"/cargo
-export CONAN_USER_HOME="$XDG_DATA_HOME"/conan
+export CONAN_HOME="$XDG_DATA_HOME"/conan
 export RUSTUP_HOME="$XDG_DATA_HOME"/rustup
