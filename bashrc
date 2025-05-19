@@ -7,8 +7,9 @@ EDITOR_CANDIDATE=$(command -v nvim || command -v vim || command -v vi)
 export EDITOR="$EDITOR_CANDIDATE"
 export VISUAL="$EDITOR_CANDIDATE"
 
-[ -f $HOME/.config/bash/environment ] && source $HOME/.config/bash/environment
-[ -f $HOME/.config/bash/.env ] && source $HOME/.config/bash/.env
+[ -f $HOME/.config/bash/environment ] && set -a && . "$HOME/.config/bash/environment" && set +a
+[ -f $HOME/.config/bash/.env ] && set -a && . "$HOME/.config/bash/.env" && set +a
+
 [ -f $HOME/.config/bash/alias ] && source $HOME/.config/bash/alias
 [ -f $HOME/.config/bash/settings/xdg.sh ] && source $HOME/.config/bash/settings/xdg.sh
 [ -f $HOME/.config/bash/settings/ps1.sh ] && source $HOME/.config/bash/settings/ps1.sh
