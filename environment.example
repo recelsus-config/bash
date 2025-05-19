@@ -1,10 +1,10 @@
 # vim: ft=sh
 
-export OPENAI_API_KEY="${OPENAI_API_KEY:-}"
-export GEMINI_API_KEY="${GEMINI_API_KEY:-}"
-export DISCORD_TOKEN="${DISCORD_TOKEN:-}"
-export KEEP_ENDPOINT="${KEEP_ENDPOINT:-}"
-export GITHUB_TOKEN="${GITHUB_TOKEN:-}"
-export GITHUB_USER="${GITHUB_USER:-}"
-export GITHUB_EMAIL="${GITHUB_EMAIL:-}"
-export NVIM_ENV="${NVIM_ENV:-minimal}"
+export OPENAI_API_KEY=
+export GEMINI_API_KEY=
+export DISCORD_TOKEN=
+export DISCORD_WEBHOOK=
+export GITHUB_TOKEN=
+export GITHUB_USER=
+export GITHUB_EMAIL=
+export NVIM_ENV=

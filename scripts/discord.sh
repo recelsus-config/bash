@@ -1,7 +1,7 @@
 # vim: ft=sh
 
 keep() {
-  local endpoint="${KEEP_ENDPOINT}"
+  local endpoint="${DISCORD_WEBHOOK}"
 
   username="bash"
   avatar_url="https://www.powerpyx.com/wp-content/uploads/pokemon-sword-shield-Pyukumuku.jpg"
