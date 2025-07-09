@@ -71,6 +71,36 @@ aicommit() {
 }
 
 ##
+# Detailed diff analysis
+##
+aidiff() {
+  local args=("$@")
+  local input=$(git diff --staged)
+
+  if [ -z "$input" ]; then
+    echo "No staged changes detected."
+    return 1
+  fi
+
+  local prompt="Please analyze the following git diff and explain the changes in detail.
+                Format:
+                ## Summary
+                - High-level summary of what was changed and why.
+
+                ## Changes
+                - List each file with:
+                  - Purpose of change
+                  - What logic or behavior was added/removed/modified
+
+                Use plain, technical language.
+                Be concise but specific.
+                This is for a developer reviewing the code."
+
+  prompt+=$(parse_language_flag "${args[@]}")
+  ai-request "$prompt" "$input"
+}
+
+##
 # Translate
 ##
 aitrans() {
