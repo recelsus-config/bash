@@ -63,7 +63,9 @@ aicommit() {
 
                 - xxx.cpp: fixed A, changed request()
                 - yyy.hpp: fixed response
-                - zzz.md: added doc"
+                - zzz.md: added doc
+
+                Note: The output will be directly used as a commit message, so do not include any backticks \`\`\`, blocks, or any responses unrelated to the commit message. Only include the commit message itself."
 
   prompt+=$(parse_language_flag "${args[@]}")
 
