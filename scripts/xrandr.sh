@@ -21,3 +21,7 @@ xrandr-mac() { # 2304x1440
   xrandr --addmode Virtual-1 2304x1440_60.00
   xrandr --output Virtual-1 --mode 2304x1440_60.00
 }
+
+xrandr-mba() { # 1920x1200
+  xrandr --output Virtual-1 --mode 1920x1200
+}
