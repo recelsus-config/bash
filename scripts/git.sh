@@ -1,9 +1,10 @@
 # vim: ft=sh
 
 git-update() {
-  OLDPATH=$(pwd)
+  local old_path
+  old_path=$(pwd)
 
-  directories=(
+  local directories=(
     "$HOME/.vim"
     "$HOME/.config/nvim"
     "$HOME/.config/tmux"
@@ -13,68 +14,85 @@ git-update() {
     "$HOME/.config/aerospace"
   )
 
-  for dir in "${directories[@]}"; do
+  local targets=()
+
+  if [ "$#" -eq 0 ]; then
+    targets=("${directories[@]}")
+  else
+    local matched=()
+    for arg in "$@"; do
+      local arg_found=0
+      local normalized_arg=${arg#.}
+      for dir in "${directories[@]}"; do
+        local name
+        name=$(basename "$dir")
+        name=${name#.}
+        if [ "$normalized_arg" = "$name" ]; then
+          arg_found=1
+          local seen=0
+          for listed in "${matched[@]}"; do
+            if [ "$listed" = "$dir" ]; then
+              seen=1
+              break
+            fi
+          done
+          if [ "$seen" -eq 0 ]; then
+            matched+=("$dir")
+          fi
+        fi
+      done
+      if [ "$arg_found" -eq 0 ]; then
+        printf "[WARN] No match fo' %s\n" "$arg"
+      fi
+    done
+    if [ "${#matched[@]}" -eq 0 ]; then
+      printf "[FAIL] No known git site names given.\n" >&2
+      cd "$old_path" || return 1
+      return 1
+    fi
+    targets=("${matched[@]}")
+  fi
+
+  for dir in "${targets[@]}"; do
     if [ -d "$dir/.git" ]; then
-      echo "Pulling $dir directory..."
-      cd "$dir" || exit
-      git pull
-      echo
+      printf "Syncing %s...\n" "$dir"
+      if cd "$dir"; then
+        git pull
+        printf "\n"
+      else
+        printf "[FAIL] Could not step into %s.\n" "$dir" >&2
+        cd "$old_path" || return 1
+        return 1
+      fi
     else
-      echo "$dir is not a git repository."
-      echo
+      printf "No git data in %s.\n\n" "$dir"
     fi
   done
 
-  cd "$OLDPATH" || exit
-  echo "Git pull operations completed."
-}
-
-git-clone() {
-  if [ -z "$GITHUB_TOKEN" ] || [ -z "$GITHUB_USER" ]; then
-    echo "[ERROR] GITHUB_TOKEN or GITHUB_USER is not set." >&2
-    return 1
-  fi
-
-  local user="${GITHUB_USER//\"/}"
-  local token="${GITHUB_TOKEN//\"/}"
-
-  local repo_url="$1"
-  local auth_url=""
-
-  if [[ "$repo_url" =~ ^https://github\.com/ ]]; then
-    auth_url="https://${user}:${token}@${repo_url#https://}"
-
-  elif [[ "$repo_url" =~ ^git@github\.com: ]]; then
-    local path="${repo_url#git@github.com:}"
-    auth_url="https://${user}:${token}@github.com/${path}"
-
-  else
-    echo "[ERROR] Unsupported URL format: $repo_url" >&2
-    return 2
-  fi
-
-  git clone "$auth_url"
-  unset auth_url
+  cd "$old_path" || return 1
+  printf "Git pull done.\n"
 }
 
 git-identity() {
   if ! git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
-    echo "[ERROR] This is not a git repository." >&2
+    printf "[FAIL] Not inside a git site.\n" >&2
     return 1
   fi
 
   if [ -z "$GITHUB_USER" ] || [ -z "$GITHUB_EMAIL" ]; then
-    echo "[ERROR] GITHUB_USER or GITHUB_EMAIL is not set." >&2
+    printf "[FAIL] Need GITHUB_USER and GITHUB_EMAIL.\n" >&2
     return 1
   fi
 
-  local user="${GITHUB_USER//\"/}"
-  local email="${GITHUB_EMAIL//\"/}"
+  local user
+  local email
+
+  user=$(printf '%s' "$GITHUB_USER" | tr -d '\"')
+  email=$(printf '%s' "$GITHUB_EMAIL" | tr -d '\"')
 
   git config user.name "$user"
   git config user.email "$email"
 
-  echo "[INFO] Set git user.name to '$user'"
-  echo "[INFO] Set git user.email to '$email'"
+  printf "[INFO] Set git user.name to '%s'\n" "$user"
+  printf "[INFO] Set git user.email to '%s'\n" "$email"
 }
-

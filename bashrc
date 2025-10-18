@@ -7,7 +7,6 @@ EDITOR_CANDIDATE=$(command -v nvim || command -v vim || command -v vi)
 export EDITOR="$EDITOR_CANDIDATE"
 export VISUAL="$EDITOR_CANDIDATE"
 
-[ -f $HOME/.config/bash/environment ] && set -a && . "$HOME/.config/bash/environment" && set +a
 [ -f $HOME/.config/bash/.env ] && set -a && . "$HOME/.config/bash/.env" && set +a
 
 [ -f $HOME/.config/bash/alias ] && source $HOME/.config/bash/alias
@@ -16,6 +15,7 @@ export VISUAL="$EDITOR_CANDIDATE"
 [ -f $HOME/.config/bash/settings/completions.sh ] && source $HOME/.config/bash/settings/completions.sh
 
 export PATH="$HOME/.local/bin:$XDG_DATA_HOME/cargo/bin:$XDG_DATA_HOME/npm/bin:$XDG_DATA_HOME/go/bin:/snap/bin:$PATH"
+export PATH="$HOME/.local/bin/reg-scripts/bin:$PATH"
 
 # ===============================================
 # Linux or Mac Branch
@@ -38,6 +38,16 @@ fi
 # ===============================================
 # sh functions
 # ===============================================
+
+if [ -d "$HOME/.config/bash/ai" ]; then
+  if [ -f "$HOME/.config/bash/ai/common.sh" ]; then
+    source "$HOME/.config/bash/ai/common.sh"
+  fi
+  for file in "$HOME/.config/bash/ai/"*.sh; do
+    [ "$file" = "$HOME/.config/bash/ai/common.sh" ] && continue
+    [ -f "$file" ] && source "$file"
+  done
+fi
 
 for file in $HOME/.config/bash/scripts/*.sh; do
     [ -f "$file" ] && source "$file"

@@ -12,16 +12,26 @@ This will load the custom bashrc from the .config/bash/ directory.
 That file, in turn, loads various environment-specific and modular configuration scripts from the settings/, scripts/, and other related files within the directory.
 Ensure this repository is cloned into ~/.config/bash or a path you specify consistently.
 
+Local environment variables should be defined in `.env`. The legacy `environment` file is no longer used.
+
 # Custom Bash Environment Overview
 
 ## 1. Directory Structure
 ```
 .
+├── ai
+│   ├── common.sh
+│   ├── commit.sh
+│   ├── diff.sh
+│   ├── doc.sh
+│   ├── doc_full.sh
+│   ├── question.sh
+│   ├── request.sh
+│   └── translate.sh
 ├── alias
 ├── bashrc
 ├── environment.example
 ├── scripts
-│   ├── ai.sh
 │   ├── discord.sh
 │   ├── fzf.sh
 │   ├── git.sh
@@ -47,24 +57,26 @@ It supports direct connections and connections through an SSH tunnel.
 
 ---
 
-### About the `ai.sh` Function
-This function sends a prompt and input to the Gemini API and returns the generated content. 
-It constructs a JSON payload with the prompt and input, then uses `curl` to make a POST request to the Gemini API.
+### About the AI Helpers
+These functions send prompts to the configured AI provider (Gemini by default) and return the generated content.
+Set `AI_PROVIDER=openai` together with `OPENAI_API_KEY` (and optionally `OPENAI_MODEL`, `OPENAI_API_BASE`, `OPENAI_ORG_ID`) to switch providers.
+Gemini requests use `GEMINI_API_KEY` and can be tuned with `GEMINI_MODEL`. Each command also accepts `-p gemini|openai|chatgpt` to override the provider per call.
 
 ### Usage
-- `ai-request <prompt> <input>`  # Sends a request to the Gemini API with the given prompt and input.
+- `ai-request <prompt> <input>`  # Sends a request using the selected provider.
 
-- `aicommit`  # Generates a commit message based on the diff and commits the changes.
-- `aicommit-ja`  # Generates a Japanese commit message based on the diff and commits the changes.
+- `aicommit [-p provider] [-l [language]]`  # Generates a commit message (English by default; `-l` defaults to Japanese, `-l french` requests French, etc.).
 
-- `aitrans "text to translate"`  # Translates the given text.
-- `echo "text to translate" | aitrans`  # Translates the piped text.
+- `aitrans [-p provider] "text to translate"`  # Translates the given text.
+- `echo "text to translate" | aitrans [-p provider]`  # Translates the piped text.
 
-- `aiq "your question"`  # Answers the given question in Japanese.
-- `echo "your question" | aiq`  # Answers the piped question in Japanese.
+- `aiq [-p provider] "your question"`  # Answers the given question in Japanese.
+- `echo "your question" | aiq [-p provider]`  # Answers the piped question in Japanese.
 
-- `aidoc "your source code"`  # Generates documentation for the given source code.
-- `echo "your source code" | aidoc`  # Generates documentation for the piped source code.
+- `aidoc [-p provider] "your source code"`  # Generates documentation for the given source code.
+- `echo "your source code" | aidoc [-p provider]`  # Generates documentation for the piped source code.
+
+- `aidoc-full [-p provider]`  # Produces a README-style summary for larger snippets (input via args or pipe).
 
 ---
 
@@ -82,7 +94,7 @@ It reads the message either from standard input or as a command-line argument.
 This function iterates through a predefined list of directories, checks if they are git repositories, and if so, performs a `git pull` operation to update them.
 
 ### Usage
-- `git-update`  # Updates git repositories in specified directories.
+- `git-update [name ...]`  # Updates all registered repositories, or limits to the named ones (e.g. `git-update nvim bash`).
 
 ---
 
@@ -119,7 +131,7 @@ These files define environment settings, completions, aliases, and platform-spec
 - Main entry point for the custom shell environment.
 
 #### `environment.example`
-- Example file for environment variables. Can be copied and modified as `environment`.
+- Example file for environment variables. Can be copied and modified as `.env`.
 
 ### `settings/` Directory
 

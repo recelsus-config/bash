@@ -25,3 +25,29 @@ xrandr-mac() { # 2304x1440
 xrandr-mba() { # 1920x1200
   xrandr --output Virtual-1 --mode 1920x1200
 }
+
+# List named modes with noted size
+xrandr-list() {
+  local source_path
+  source_path="${BASH_SOURCE[0]}"
+
+  if [ ! -f "$source_path" ]; then
+    source_path="$HOME/.config/bash/scripts/xrandr.sh"
+  fi
+
+  if [ ! -f "$source_path" ]; then
+    printf "[FAIL] Missing xrandr source file.\n" >&2
+    return 1
+  fi
+
+  awk '/^xrandr-[^(]+\(\) \{ # / {
+    name=$1
+    sub(/\(\)/, "", name)
+    split($0, bits, "#")
+    if (length(bits) > 1) {
+      size = bits[2]
+      gsub(/^ +| +$/, "", size)
+      printf("%s %s\n", name, size)
+    }
+  }' "$source_path"
+}
