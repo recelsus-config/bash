@@ -9,11 +9,13 @@ Options:
   -P PORT      Override remote VNC port (default 5900)
   -L PORT      Override local forward port (default 5900)
   -J JUMPS     ProxyJump hosts (comma separated)
+  -l           List Host entries from ~/.ssh/config
   -h           Show this help and exit
 
 Examples:
   vnc target
   vnc -p 2222 target
+  vnc -l
   vnc target -P 6000
   vnc target -P 6000 -J bastion1
 USAGE
@@ -62,13 +64,31 @@ cleanup_ssh() {
   fi
 }
 
+list_config_hosts() {
+  local config_file="${HOME}/.ssh/config"
+  if [[ ! -f "$config_file" ]]; then
+    echo "Error: ssh config not found: $config_file" >&2
+    return 1
+  fi
+  awk 'tolower($1)=="host" {
+    for (i = 2; i <= NF; ++i) {
+      host = $i
+      if (host == "*" || host ~ /[*?]/) {
+        continue
+      }
+      print host
+    }
+  }' "$config_file" | sort -u
+}
+
 vnc_main() {
   local host_alias=""
   local use_help=false
+  local use_list=false
   local local_port=5900
   local extra_args=()
-  user_port_override=""
-  user_proxy_jump=""
+  local user_port_override=""
+  local user_proxy_jump=""
   local remote_port_override=""
 
   while [[ $# -gt 0 ]]; do
@@ -109,6 +129,10 @@ vnc_main() {
         user_proxy_jump=$2
         shift 2
         ;;
+      -l)
+        use_list=true
+        shift
+        ;;
       --)
         shift
         while [[ $# -gt 0 ]]; do
@@ -134,6 +158,19 @@ vnc_main() {
   if $use_help; then
     show_usage
     return 0
+  fi
+
+  if $use_list; then
+    if [[ -n "$host_alias" || ${#extra_args[@]} -gt 0 ]]; then
+      echo "Error: option -l cannot be combined with other arguments" >&2
+      return 1
+    fi
+    if [[ -n "$user_port_override" || -n "$remote_port_override" || -n "$user_proxy_jump" || "$local_port" != "5900" ]]; then
+      echo "Error: option -l cannot be combined with connection options" >&2
+      return 1
+    fi
+    list_config_hosts
+    return $?
   fi
 
   if [[ -z "$host_alias" ]]; then
