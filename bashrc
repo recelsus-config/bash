@@ -15,7 +15,7 @@ export VISUAL="$EDITOR_CANDIDATE"
 [ -f $HOME/.config/bash/settings/completions.sh ] && source $HOME/.config/bash/settings/completions.sh
 
 export PATH="$HOME/.local/bin:$XDG_DATA_HOME/cargo/bin:$XDG_DATA_HOME/npm/bin:$XDG_DATA_HOME/go/bin:/snap/bin:$PATH"
-export PATH="$HOME/.local/bin/reg-scripts/bin:$PATH"
+export PATH="$HOME/.local/bin/scripts/bin:$PATH"
 
 # ===============================================
 # Linux or Mac Branch
