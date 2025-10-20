@@ -49,7 +49,13 @@ if [ -d "$HOME/.config/bash/ai" ]; then
   done
 fi
 
-for file in $HOME/.config/bash/scripts/*.sh; do
+for file in "$HOME/.config/bash/scripts"/*.sh; do
     [ -f "$file" ] && source "$file"
 done
+
+if [ -d "$HOME/.config/bash/scripts/fzf" ]; then
+  for file in "$HOME/.config/bash/scripts/fzf"/*.sh; do
+    [ -f "$file" ] && source "$file"
+  done
+fi
 
