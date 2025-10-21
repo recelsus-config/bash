@@ -17,6 +17,10 @@ export VISUAL="$EDITOR_CANDIDATE"
 export PATH="$HOME/.local/bin:$XDG_DATA_HOME/cargo/bin:$XDG_DATA_HOME/npm/bin:$XDG_DATA_HOME/go/bin:/snap/bin:$PATH"
 export PATH="$HOME/.local/bin/scripts/bin:$PATH"
 
+if [ -d "$HOME/.config/bash/scripts/ai" ]; then
+  export PATH="$HOME/.config/bash/scripts/ai:$PATH"
+fi
+
 # ===============================================
 # Linux or Mac Branch
 # ===============================================
@@ -39,16 +43,6 @@ fi
 # sh functions
 # ===============================================
 
-if [ -d "$HOME/.config/bash/ai" ]; then
-  if [ -f "$HOME/.config/bash/ai/common.sh" ]; then
-    source "$HOME/.config/bash/ai/common.sh"
-  fi
-  for file in "$HOME/.config/bash/ai/"*.sh; do
-    [ "$file" = "$HOME/.config/bash/ai/common.sh" ] && continue
-    [ -f "$file" ] && source "$file"
-  done
-fi
-
 for file in "$HOME/.config/bash/scripts"/*.sh; do
     [ -f "$file" ] && source "$file"
 done
@@ -58,4 +52,3 @@ if [ -d "$HOME/.config/bash/scripts/fzf" ]; then
     [ -f "$file" ] && source "$file"
   done
 fi
-

@@ -1,0 +1,194 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ai_root="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+services_dir="${ai_root}/services"
+
+show_usage() {
+  cat <<'USAGE'
+Usage: ai <command> [options] [args]
+
+Commands:
+  commit            Generate a commit message from staged diff
+  diff              Review staged diff content
+  doc               Produce focused docs fo' a snippet (use -m full fo' full mode)
+  question          Ask a free-fo'm question (stdin o' args)
+  translate (t)     Translate between Japanese and English
+  cmd               Suggest POSIX shell commands fo' the described task
+  win               Convert bash to Windows commands (-m ps | -m cmd)
+
+Flags:
+  -h, --help        Show this help
+  -m <mode>         Mode selector (doc, win)
+  -l <lang>         Language override fo' supported commands (commit/doc/diff/question/translate)
+
+Examples:
+  ai commit
+  ai doc -l jpn "function foo() { }"
+  ai doc -m full -l jpn "function foo() { }"
+  git diff | ai diff
+  ai cmd "./README.mdの中身を確認するには？"
+  ai win -m ps 'ls -la'
+USAGE
+}
+
+main() {
+  if [ "$#" -eq 0 ]; then
+    show_usage
+    exit 1
+  fi
+
+  case "$1" in
+    -h|--help|help)
+      show_usage
+      return 0
+      ;;
+  esac
+
+  local command="$1"
+  shift
+
+  local command_args=("$@")
+  local script_name=""
+
+  case "$command" in
+    commit)
+      script_name="ai-commit.sh"
+      ;;
+    diff)
+      script_name="ai-diff.sh"
+      ;;
+    doc)
+      local use_full=0
+      local filtered=()
+      local idx=0
+      local total=${#command_args[@]}
+      while [ $idx -lt $total ]; do
+        local arg="${command_args[$idx]}"
+        case "$arg" in
+          -m)
+            if [ $((idx + 1)) -lt $total ]; then
+              local mode_value="${command_args[$((idx + 1))]}"
+              local mode_lower
+              mode_lower=$(printf '%s' "$mode_value" | tr '[:upper:]' '[:lower:]')
+              if [ "$mode_lower" = "full" ]; then
+                use_full=1
+              else
+                printf "[FAIL] Unknown doc mode: %s\n" "$mode_value" >&2
+                exit 1
+              fi
+              idx=$((idx + 2))
+              continue
+            else
+              printf "[FAIL] The -m flag fo' ai doc needs a value.\n" >&2
+              exit 1
+            fi
+            ;;
+          *)
+            filtered+=("$arg")
+            idx=$((idx + 1))
+            continue
+            ;;
+        esac
+      done
+
+      if [ "$use_full" -eq 1 ]; then
+        script_name="ai-doc-full.sh"
+      else
+        script_name="ai-doc.sh"
+      fi
+
+      if [ ${#filtered[@]} -gt 0 ]; then
+        command_args=("${filtered[@]}")
+      else
+        command_args=()
+      fi
+      ;;
+    question|q)
+      script_name="ai-question.sh"
+      ;;
+    translate|t)
+      script_name="ai-translate.sh"
+      ;;
+    cmd)
+      script_name="ai-cmd.sh"
+      ;;
+    win)
+      local win_mode=""
+      local filtered=()
+      local idx=0
+      local total=${#command_args[@]}
+      while [ $idx -lt $total ]; do
+        local arg="${command_args[$idx]}"
+        case "$arg" in
+          -m)
+            if [ $((idx + 1)) -lt $total ]; then
+              local mode_value="${command_args[$((idx + 1))]}"
+              local mode_lower
+              mode_lower=$(printf '%s' "$mode_value" | tr '[:upper:]' '[:lower:]')
+              case "$mode_lower" in
+                ps)
+                  win_mode="ps"
+                  ;;
+                cmd)
+                  win_mode="cmd"
+                  ;;
+                *)
+                  printf "[FAIL] Unknown win mode: %s\n" "$mode_value" >&2
+                  exit 1
+                  ;;
+              esac
+              idx=$((idx + 2))
+              continue
+            else
+              printf "[FAIL] The -m flag fo' ai win needs a value.\n" >&2
+              exit 1
+            fi
+            ;;
+          *)
+            filtered+=("$arg")
+            idx=$((idx + 1))
+            continue
+            ;;
+        esac
+      done
+
+      case "$win_mode" in
+        ps)
+          script_name="ai-ps.sh"
+          ;;
+        cmd)
+          script_name="ai-win-cmd.sh"
+          ;;
+        "")
+          printf "[FAIL] Please specify -m ps o' -m cmd fo' ai win.\n" >&2
+          exit 1
+          ;;
+      esac
+
+      if [ ${#filtered[@]} -gt 0 ]; then
+        command_args=("${filtered[@]}")
+      else
+        command_args=()
+      fi
+      ;;
+    *)
+      printf "[FAIL] Unknown command: %s\n" "$command" >&2
+      show_usage >&2
+      exit 1
+      ;;
+  esac
+
+  set -- "${command_args[@]}"
+
+  local target="${services_dir}/${script_name}"
+
+  if [ ! -x "$target" ]; then
+    printf "[FAIL] Service not executable: %s\n" "$script_name" >&2
+    exit 1
+  fi
+
+  exec "$target" "$@"
+}
+
+main "$@"

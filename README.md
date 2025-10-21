@@ -13,10 +13,10 @@ Optional machine-specific values (tokens, secrets, etc.) can be placed in `~/.co
 ## Directory Layout
 ```
 .
-├── ai/                  # Prompt helpers for Gemini / OpenAI
 ├── alias                # Shell aliases
 ├── bashrc               # Entry point that sources the rest of the setup
 ├── scripts/
+│   ├── ai/              # AI CLI entry (ai) plus lib/ and services/
 │   ├── discord.sh       # Simple Discord webhook sender
 │   ├── git.sh           # Batch git pull helper
 │   ├── vnc.sh           # VNC launcher with SSH tunnelling support
@@ -45,8 +45,8 @@ Each feature is optional; if a dependency is missing, only that feature will fai
 - **Required**: `rg`, `fzf`.
 - **Optional**: `bat` for syntax-highlighted previews (falls back to `nl` + `sed`).
 
-### AI helper scripts (ai/)
-- **Purpose**: Prompt/translation/documentation helpers for Gemini or OpenAI APIs.
+### AI CLI (`scripts/ai/`)
+- **Purpose**: `ai` command that dispatches to commit/doc/diff/question/translate helpers, a shell command suggester (`ai cmd`), and Windows converters (`ai win -m ps|cmd`) backed by Gemini or OpenAI APIs.
 - **Required**: Network access and provider-specific API keys defined in environment variables (`GEMINI_API_KEY`, `OPENAI_API_KEY`, etc.).
 - **Optional**: None.
 
@@ -69,4 +69,3 @@ Each feature is optional; if a dependency is missing, only that feature will fai
 - New shell functions become available after sourcing `bashrc`. To reload without restarting the shell, run `source ~/.config/bash/bashrc`.
 - The environment is designed so that missing optional tools do not break everything; only the corresponding helper will warn or become a no-op.
 - Modify or extend `scripts/` and `settings/` to tailor the environment for additional tooling.
-

@@ -1,18 +1,24 @@
-# vim: ft=sh
+#!/usr/bin/env bash
+set -euo pipefail
 
-aicommit() {
+script_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ai_root="$(cd "${script_path}/.." && pwd)"
+
+source "${ai_root}/lib/common.sh"
+source "${ai_root}/lib/request.sh"
+
+main() {
   local provider
-  provider=$(ai_resolve_provider "${AI_PROVIDER:-gemini}" "$@") || return 1
+  provider=$(ai_resolve_provider "${AI_PROVIDER:-gemini}" "$@") || exit 1
 
   local diff_output
   diff_output=$(git diff --staged)
 
   if [ -z "$diff_output" ]; then
     printf 'No staged change seen.\n'
-    return 1
+    exit 1
   fi
 
-  # High-quality commit message generator (ASCII-only prompt)
   local prompt
   prompt=$(cat <<'PROMPT'
 Write a high-quality Git commit message for the staged unified diff.
@@ -37,6 +43,7 @@ PROMPT
 
   prompt+=$(ai_language_directive 'English' 'Japanese' "$@")
 
-  AI_PROVIDER="$provider" git commit -t <(ai-request "$prompt" "$diff_output")
+  AI_PROVIDER="$provider" git commit -t <(ai_request "$prompt" "$diff_output")
 }
 
+main "$@"

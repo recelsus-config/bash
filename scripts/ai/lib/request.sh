@@ -71,12 +71,12 @@ ai_request_openai() {
   fi
 }
 
-ai-request() {
+ai_request() {
   local prompt="$1"
   local input="$2"
 
   if [ -z "$prompt" ] || [ -z "$input" ]; then
-    printf "Usage: ai-request <prompt> <input>\n"
+    printf "Usage: ai_request <prompt> <input>\n"
     return 1
   fi
 

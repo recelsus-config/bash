@@ -1,18 +1,24 @@
-# vim: ft=sh
+#!/usr/bin/env bash
+set -euo pipefail
 
-aidiff() {
+script_path="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ai_root="$(cd "${script_path}/.." && pwd)"
+
+source "${ai_root}/lib/common.sh"
+source "${ai_root}/lib/request.sh"
+
+main() {
   local provider
-  provider=$(ai_resolve_provider "${AI_PROVIDER:-gemini}" "$@") || return 1
+  provider=$(ai_resolve_provider "${AI_PROVIDER:-gemini}" "$@") || exit 1
 
   local diff_output
   diff_output=$(git diff --staged)
 
   if [ -z "$diff_output" ]; then
     printf 'No staged change seen.\n'
-    return 1
+    exit 1
   fi
 
-  # English-only prompt (ASCII), structured for developer review.
   local prompt
   prompt=$(cat <<'PROMPT'
 You are a senior code reviewer. Analyze the following unified git diff (from `git diff --staged`) and produce a structured, developer-oriented review.
@@ -47,6 +53,7 @@ PROMPT
   )
 
   prompt+=$(ai_language_directive '' 'Japanese' "$@")
-  AI_PROVIDER="$provider" ai-request "$prompt" "$diff_output"
+  AI_PROVIDER="$provider" ai_request "$prompt" "$diff_output"
 }
 
+main "$@"
