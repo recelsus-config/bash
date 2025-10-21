@@ -1,5 +1,4 @@
 # vim: ft=sh
-
 aitrans() {
   local provider
   provider=$(ai_resolve_provider "${AI_PROVIDER:-gemini}" "$@") || return 1
@@ -16,6 +15,18 @@ aitrans() {
     return 1
   fi
 
-  local prompt="If the text is in Japanese, translate it into English. If the text is in English, translate it into Japanese. Do not include pronunciation guides or transliterations."
+  # Bidirectional JA<->EN translation with strict formatting preservation.
+  local prompt="Translate between Japanese and English automatically.
+Rules:
+- Output only the translation text. No preface, notes, or pronunciations.
+- Preserve line breaks, list markers, spacing, and markdown structure.
+- Do NOT translate content inside fenced code blocks (```…```), inline code (`…`), HTML <code>…</code>, or URLs.
+- Keep math, commands, and code tokens as-is.
+- Prefer neutral tone and plain style. Avoid embellishment.
+- For product or proper names, keep common exonyms or the original if unclear.
+- When translating into Japanese, use です/ます調, natural punctuation（、。）; keep half-width ASCII for code/identifiers.
+- Do not infer missing context; if a sentence is incomplete, translate faithfully without guessing."
+
   AI_PROVIDER="$provider" ai-request "$prompt" "$input"
 }
+
