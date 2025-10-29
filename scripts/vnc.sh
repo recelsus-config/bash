@@ -271,14 +271,8 @@ vnc_main() {
 
 
 vnc() {
-  local shell_opts status
-  shell_opts=$(set +o)
-  set -euo pipefail
-  if ! vnc_main "$@"; then
-    status=$?
-  else
-    status=0
-  fi
-  eval "$shell_opts"
-  return $status
+  (
+    set -euo pipefail
+    vnc_main "$@"
+  )
 }
