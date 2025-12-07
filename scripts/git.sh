@@ -53,19 +53,24 @@ git-update() {
     targets=("${matched[@]}")
   fi
 
+  local valid=()
   for dir in "${targets[@]}"; do
     if [ -d "$dir/.git" ]; then
-      printf "Syncing %s...\n" "$dir"
-      if cd "$dir"; then
-        git pull
-        printf "\n"
-      else
-        printf "[FAIL] Could not step into %s.\n" "$dir" >&2
-        cd "$old_path" || return 1
-        return 1
-      fi
+      valid+=("$dir")
     else
       printf "No git data in %s.\n\n" "$dir"
+    fi
+  done
+
+  for dir in "${valid[@]}"; do
+    printf "Syncing %s...\n" "$dir"
+    if cd "$dir"; then
+      git pull
+      printf "\n"
+    else
+      printf "[FAIL] Could not step into %s.\n" "$dir" >&2
+      cd "$old_path" || return 1
+      return 1
     fi
   done
 
