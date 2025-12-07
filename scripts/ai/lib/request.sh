@@ -9,7 +9,7 @@ ai_request_gemini() {
     return 1
   fi
 
-  local model="${GEMINI_MODEL:-gemini-2.0-flash}"
+  local model="${GEMINI_MODEL:-gemini-2.5-flash}"
   local url="https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}"
 
   local payload
