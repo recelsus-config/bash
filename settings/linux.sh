@@ -3,6 +3,6 @@
 if which X &> /dev/null; then
   :
 else
-  export PS1="$PS1_NX"
+  export PS1="$PS1"
 fi
 
