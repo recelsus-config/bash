@@ -1,4 +1,3 @@
-# Prefer a working locale to avoid startup warnings on remote hosts.
 if command -v locale >/dev/null 2>&1; then
   available_locales="$(locale -a 2>/dev/null)"
 
