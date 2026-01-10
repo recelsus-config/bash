@@ -8,6 +8,10 @@ if [ -f /usr/share/git/completion/git-prompt.sh ]; then
     source /usr/share/git/completion/git-prompt.sh
 fi
 
+if [ -f /usr/share/git-core/contrib/completion/git-prompt.sh ]; then
+    source /usr/share/git-core/contrib/completion/git-prompt.sh
+fi
+
 if [ -f "$HOME/.config/bash/scripts/ai/completion.bash" ]; then
     source "$HOME/.config/bash/scripts/ai/completion.bash"
 fi
