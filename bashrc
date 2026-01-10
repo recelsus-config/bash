@@ -1,7 +1,4 @@
-# export LANG=ja_JP.UTF-8
-# export LC_ALL=ja_JP.UTF-8
-# export LANG=en_US.UTF-8
-# export LC_CTYPE=en_US.UTF-8
+[ -f $HOME/.config/bash/settings/locale.sh ] && source $HOME/.config/bash/settings/locale.sh
 
 export TERM=xterm-256color
 
