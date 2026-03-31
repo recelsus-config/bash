@@ -17,7 +17,6 @@ Optional machine-specific values (tokens, secrets, etc.) can be placed in `~/.co
 ├── bashrc               # Entry point that sources the rest of the setup
 ├── scripts/
 │   ├── ai/              # AI CLI entry (ai) plus lib/ and services/
-│   ├── discord.sh       # Simple Discord webhook sender
 │   ├── git.sh           # Batch git pull helper
 │   ├── vnc.sh           # VNC launcher with SSH tunnelling support
 │   ├── xrandr.sh        # Handy display presets
@@ -48,11 +47,6 @@ Each feature is optional; if a dependency is missing, only that feature will fai
 ### AI CLI (`scripts/ai/`)
 - **Purpose**: `ai` command that dispatches to commit/doc/diff/question/translate helpers, a shell command suggester (`ai cmd`), and Windows converters (`ai win -m ps|cmd`) backed by Gemini or OpenAI APIs.
 - **Required**: Network access and provider-specific API keys defined in environment variables (`GEMINI_API_KEY`, `OPENAI_API_KEY`, etc.).
-- **Optional**: None.
-
-### `discord.sh`
-- **Purpose**: Send messages to a preconfigured webhook endpoint.
-- **Required**: `curl`.
 - **Optional**: None.
 
 ### `git.sh`

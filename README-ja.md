@@ -17,7 +17,6 @@
 ├── bashrc               # エントリーポイント（各種設定を読み込む）
 ├── scripts/
 │   ├── ai/              # ai と lib/・services/ を含む AI 用CLI
-│   ├── discord.sh       # Discord Webhook 送信補助
 │   ├── git.sh           # 登録済みリポジトリの一括更新
 │   ├── vnc.sh           # SSHトンネルに対応したVNCランチャー
 │   ├── xrandr.sh        # 画面解像度プリセット
@@ -48,11 +47,6 @@
 ### AI CLI (`scripts/ai/`)
 - **目的**: `ai` コマンドからコミット生成・レビュー・ドキュメント化・翻訳に加え、シェルコマンド提案（`ai cmd`）や Windows 変換（`ai win -m ps|cmd`）を呼び出す（Gemini / OpenAI を利用）。
 - **必須**: ネットワークアクセスと、環境変数に設定した各プロバイダの API キー（`GEMINI_API_KEY`、`OPENAI_API_KEY` など）。
-- **任意**: なし。
-
-### `discord.sh`
-- **目的**: 設定済み Webhook へメッセージを送信。
-- **必須**: `curl`。
 - **任意**: なし。
 
 ### `git.sh`
