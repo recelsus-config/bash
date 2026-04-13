@@ -1,6 +1,9 @@
 [ -f $HOME/.config/bash/settings/locale.sh ] && source $HOME/.config/bash/settings/locale.sh
 
-export TERM=xterm-256color
+# Preserve TERM provided by the terminal or tmux; do not clobber it.
+if [ -z "${TERM:-}" ]; then
+  export TERM=xterm-256color
+fi
 
 EDITOR_CANDIDATE=$(command -v nvim || command -v vim || command -v vi)
 export EDITOR="$EDITOR_CANDIDATE"
