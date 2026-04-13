@@ -10,6 +10,7 @@ git-update() {
     "$HOME/.config/tmux"
     "$HOME/.config/bash"
     "$HOME/.config/ghostty"
+    "$HOME/.config/alacritty"
     "$HOME/.config/i3"
     "$HOME/.config/aerospace"
   )
