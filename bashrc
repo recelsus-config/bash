@@ -13,8 +13,8 @@ export VISUAL="$EDITOR_CANDIDATE"
 
 [ -f $HOME/.config/bash/alias ] && source $HOME/.config/bash/alias
 [ -f $HOME/.config/bash/settings/xdg.sh ] && source $HOME/.config/bash/settings/xdg.sh
-[ -f $HOME/.config/bash/settings/ps1.sh ] && source $HOME/.config/bash/settings/ps1.sh
 [ -f $HOME/.config/bash/settings/completions.sh ] && source $HOME/.config/bash/settings/completions.sh
+[ -f $HOME/.config/bash/settings/ps1.sh ] && source $HOME/.config/bash/settings/ps1.sh
 
 export PATH="$HOME/.local/bin:$XDG_DATA_HOME/cargo/bin:$XDG_DATA_HOME/npm/bin:$XDG_DATA_HOME/go/bin:/snap/bin:$PATH"
 export PATH="$HOME/.local/bin/scripts/bin:$PATH"

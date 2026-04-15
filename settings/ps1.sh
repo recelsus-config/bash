@@ -10,7 +10,7 @@ CYAN="\[\e[1;36m\]"
 WHITE="\[\e[1;37m\]"
 RESET="\[\e[m\]"
 
-GIT_PS1="\$(__git_ps1 '(%s)')"
+GIT_PS1="\$(command -v __git_ps1 >/dev/null 2>&1 && __git_ps1 '(%s)')"
 
 export PS1="${RED}[\u@\h ${BLUE}\W${CYAN}${GIT_PS1}${RED}]\$ ${RESET}"
 export PS1_SSH="${BLUE}[\u@\h ${RED}\W${CYAN}${GIT_PS1}${BLUE}]\$ ${RESET}"
