@@ -42,7 +42,7 @@ ai_language_directive() {
 
   while [ $# -gt 0 ]; do
     case "$1" in
-      -l)
+      -l|--language)
         saw_flag=1
         if [ $# -gt 1 ] && [[ "$2" != -* ]]; then
           chosen="$2"
@@ -82,7 +82,8 @@ ai_resolve_provider() {
 
   while [ $# -gt 0 ]; do
     case "$1" in
-      -p)
+      -p|--provider)
+        local provider_flag="$1"
         shift
         if [ $# -gt 0 ]; then
           local flag_value
@@ -99,7 +100,7 @@ ai_resolve_provider() {
           shift
           continue
         fi
-        printf "[FAIL] The -p flag expects a provideh name.\n" >&2
+        printf "[FAIL] The %s flag expects a provideh name.\n" "$provider_flag" >&2
         return 1
         ;;
     esac
@@ -127,14 +128,14 @@ ai_collect_positionals() {
 
   while [ $# -gt 0 ]; do
     case "$1" in
-      -p)
+      -p|--provider)
         shift
         if [ $# -gt 0 ]; then
           shift
         fi
         continue
         ;;
-      -l)
+      -l|--language)
         shift
         if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
           shift

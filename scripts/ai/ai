@@ -20,10 +20,15 @@ Commands:
 Flags:
   -h, --help        Show this help
   -m <mode>         Mode selector (doc, win)
-  -l <lang>         Language override fo' supported commands (commit/doc/diff/question/translate)
+  -l, --language <lang>
+                    Language override fo' supported commands (commit/doc/diff/question/translate)
+  -p, --provider <provider>
+                    AI provider (gemini, openai, chatgpt)
 
 Examples:
   ai commit
+  ai commit -i logo.png -id images/
+  ai commit --prompt "Mention README.md only as changed"
   ai doc -l jpn "function foo() { }"
   ai doc -m full -l jpn "function foo() { }"
   git diff | ai diff

@@ -14,7 +14,7 @@ _ai_completion() {
   while [ $idx -lt $COMP_CWORD ]; do
     local word="${COMP_WORDS[$idx]}"
     case "$word" in
-      -m|-l)
+      -m|-l|--language|-p|--provider)
         if [ $((idx + 1)) -lt $COMP_CWORD ]; then
           idx=$((idx + 2))
           continue
@@ -39,8 +39,9 @@ _ai_completion() {
   done
 
   local commands="commit diff doc question translate t cmd win"
-  local global_opts="-h --help -l -m"
+  local global_opts="-h --help -l --language -m -p --provider"
   local languages="english japanese french spanish german"
+  local providers="gemini openai chatgpt"
 
   case "$command" in
     "")
@@ -56,39 +57,79 @@ _ai_completion() {
       return
       ;;
     doc)
+      if [ "$prev" = "-p" ] || [ "$prev" = "--provider" ]; then
+        COMPREPLY=( $(compgen -W "$providers" -- "$cur") )
+        return
+      fi
       if [ "$prev" = "-m" ]; then
         COMPREPLY=( $(compgen -W "full" -- "$cur") )
         return
       fi
-      if [ "$prev" = "-l" ]; then
+      if [ "$prev" = "-l" ] || [ "$prev" = "--language" ]; then
         COMPREPLY=( $(compgen -W "$languages" -- "$cur") )
         return
       fi
-      COMPREPLY=( $(compgen -W "-l -m -h --help" -- "$cur") )
+      COMPREPLY=( $(compgen -W "-l --language -p --provider -m -h --help" -- "$cur") )
       return
       ;;
     translate|t)
-      if [ "$prev" = "-l" ]; then
+      if [ "$prev" = "-p" ] || [ "$prev" = "--provider" ]; then
+        COMPREPLY=( $(compgen -W "$providers" -- "$cur") )
+        return
+      fi
+      if [ "$prev" = "-l" ] || [ "$prev" = "--language" ]; then
         COMPREPLY=( $(compgen -W "$languages" -- "$cur") )
         return
       fi
-      COMPREPLY=( $(compgen -W "-l -h --help" -- "$cur") )
+      COMPREPLY=( $(compgen -W "-l --language -p --provider -h --help" -- "$cur") )
       return
       ;;
     question)
-      if [ "$prev" = "-l" ]; then
+      if [ "$prev" = "-p" ] || [ "$prev" = "--provider" ]; then
+        COMPREPLY=( $(compgen -W "$providers" -- "$cur") )
+        return
+      fi
+      if [ "$prev" = "-l" ] || [ "$prev" = "--language" ]; then
         COMPREPLY=( $(compgen -W "$languages" -- "$cur") )
         return
       fi
-      COMPREPLY=( $(compgen -W "-l -h --help" -- "$cur") )
+      COMPREPLY=( $(compgen -W "-l --language -p --provider -h --help" -- "$cur") )
       return
       ;;
-    diff|commit)
-      if [ "$prev" = "-l" ]; then
+    diff)
+      if [ "$prev" = "-p" ] || [ "$prev" = "--provider" ]; then
+        COMPREPLY=( $(compgen -W "$providers" -- "$cur") )
+        return
+      fi
+      if [ "$prev" = "-l" ] || [ "$prev" = "--language" ]; then
         COMPREPLY=( $(compgen -W "$languages" -- "$cur") )
         return
       fi
-      COMPREPLY=( $(compgen -W "-l -h --help" -- "$cur") )
+      COMPREPLY=( $(compgen -W "-l --language -p --provider -h --help" -- "$cur") )
+      return
+      ;;
+    commit)
+      if [ "$prev" = "-p" ] || [ "$prev" = "--provider" ]; then
+        COMPREPLY=( $(compgen -W "$providers" -- "$cur") )
+        return
+      fi
+      if [ "$prev" = "-l" ] || [ "$prev" = "--language" ]; then
+        COMPREPLY=( $(compgen -W "$languages" -- "$cur") )
+        return
+      fi
+      if [ "$prev" = "-i" ] || [ "$prev" = "--ignore" ]; then
+        COMPREPLY=( $(compgen -f -- "$cur") )
+        return
+      fi
+      if [ "$prev" = "-id" ] || [ "$prev" = "--ignore-dir" ]; then
+        COMPREPLY=( $(compgen -d -- "$cur") )
+        return
+      fi
+      if [ "$prev" = "--prompt" ]; then
+        COMPREPLY=()
+        return
+      fi
+      COMPREPLY=( $(compgen -W "-l --language -p --provider -i --ignore -id --ignore-dir --prompt -h --help" -- "$cur") )
       return
       ;;
     win)

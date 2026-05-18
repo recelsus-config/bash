@@ -48,6 +48,8 @@ Each feature is optional; if a dependency is missing, only that feature will fai
 - **Purpose**: `ai` command that dispatches to commit/doc/diff/question/translate helpers, a shell command suggester (`ai cmd`), and Windows converters (`ai win -m ps|cmd`) backed by Gemini or OpenAI APIs.
 - **Required**: Network access and provider-specific API keys defined in environment variables (`GEMINI_API_KEY`, `OPENAI_API_KEY`, etc.).
 - **Optional**: None.
+- **Commit ignores**: `ai commit -i logo.png -id images/` omits those staged file diffs from the AI request while still sending their name/status summary. `-i` and `-id` can be mixed and repeated.
+- **Commit prompts**: `ai commit --prompt "Mention README.md only as changed"` appends extra commit-message instructions. Repeat the flag for multiple instructions.
 
 ### `git.sh`
 - **Purpose**: Iterate over registered repositories and run `git pull`.
