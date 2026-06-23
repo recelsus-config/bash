@@ -28,7 +28,7 @@ ai_request_gemini() {
     -X POST \
     -d "$payload" | jq -er '
       if .error.message then
-        "[FAIL] Gemini API: " + .error.message | halt_error(1)
+        ("[FAIL] Gemini API: " + .error.message + "\n") | halt_error(1)
       else
         first(.steps[]? | select(.type == "model_output") | .content[]?.text) //
         .output_text //

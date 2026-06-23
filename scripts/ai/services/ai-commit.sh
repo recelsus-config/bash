@@ -229,7 +229,7 @@ PROMPT
   trap 'rm -f "$template_file"' RETURN
 
   printf '%s\n' "$commit_message" > "$template_file"
-  git commit -t "$template_file"
+  git commit -e -F "$template_file"
 }
 
 main "$@"
