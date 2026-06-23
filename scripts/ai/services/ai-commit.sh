@@ -213,7 +213,23 @@ PROMPT
     done
   fi
 
-  AI_PROVIDER="$provider" git commit -t <(ai_request "$prompt" "$diff_output")
+  local commit_message
+  if ! commit_message=$(AI_PROVIDER="$provider" ai_request "$prompt" "$diff_output"); then
+    printf '[FAIL] Failed to generate commit message.\n' >&2
+    exit 1
+  fi
+
+  if ! printf '%s' "$commit_message" | grep -q '[^[:space:]]'; then
+    printf '[FAIL] AI returned an empty commit message.\n' >&2
+    exit 1
+  fi
+
+  local template_file
+  template_file=$(mktemp "${TMPDIR:-/tmp}/ai-commit.XXXXXX")
+  trap 'rm -f "$template_file"' RETURN
+
+  printf '%s\n' "$commit_message" > "$template_file"
+  git commit -t "$template_file"
 }
 
 main "$@"

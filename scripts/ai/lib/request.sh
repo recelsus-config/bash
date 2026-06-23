@@ -9,7 +9,7 @@ ai_request_gemini() {
     return 1
   fi
 
-  local model="${GEMINI_MODEL:-gemini-3.5-flash}"
+  local model="${GEMINI_MODEL:-gemini-2.5-flash}"
   local url="https://generativelanguage.googleapis.com/v1beta/interactions"
 
   local payload
@@ -26,14 +26,16 @@ ai_request_gemini() {
     -H 'Content-Type: application/json' \
     -H "x-goog-api-key: ${GEMINI_API_KEY}" \
     -X POST \
-    -d "$payload" | jq -r '
-      [.steps[]? | select(.type == "model_output") | .content[]?.text] | first //
-      .output_text //
-      .output //
-      .response.text //
-      .candidates[0].content.parts[0].text //
-      .error.message //
-      .
+    -d "$payload" | jq -er '
+      if .error.message then
+        "[FAIL] Gemini API: " + .error.message | halt_error(1)
+      else
+        first(.steps[]? | select(.type == "model_output") | .content[]?.text) //
+        .output_text //
+        .output //
+        .response.text //
+        .candidates[0].content.parts[0].text
+      end
     '
 }
 
