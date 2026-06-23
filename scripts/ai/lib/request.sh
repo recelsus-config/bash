@@ -9,29 +9,32 @@ ai_request_gemini() {
     return 1
   fi
 
-  local model="${GEMINI_MODEL:-gemini-flash-latest}"
-  local url="https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent"
+  local model="${GEMINI_MODEL:-gemini-3.5-flash}"
+  local url="https://generativelanguage.googleapis.com/v1beta/interactions"
 
   local payload
   payload=$(jq -n \
+    --arg model "$model" \
     --arg prompt "$prompt" \
     --arg input "$input" \
-    '{ contents: [
-        {
-          parts: [
-            { text: $prompt },
-            { text: $input }
-          ]
-        }
-      ]
+    '{ model: $model,
+       input: ($prompt + "\n\n" + $input)
     }'
   )
 
-  curl -sS "$url" \
+  curl --max-time "${GEMINI_TIMEOUT:-60}" -sS "$url" \
     -H 'Content-Type: application/json' \
-    -H "X-goog-api-key: ${GEMINI_API_KEY}" \
+    -H "x-goog-api-key: ${GEMINI_API_KEY}" \
     -X POST \
-    -d "$payload" | jq -r '.candidates[0].content.parts[0].text'
+    -d "$payload" | jq -r '
+      [.steps[]? | select(.type == "model_output") | .content[]?.text] | first //
+      .output_text //
+      .output //
+      .response.text //
+      .candidates[0].content.parts[0].text //
+      .error.message //
+      .
+    '
 }
 
 ai_request_openai() {
