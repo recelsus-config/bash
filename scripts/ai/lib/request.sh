@@ -9,22 +9,27 @@ ai_request_gemini() {
     return 1
   fi
 
-  local model="${GEMINI_MODEL:-gemini-2.5-flash}"
-  local url="https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${GEMINI_API_KEY}"
+  local model="${GEMINI_MODEL:-gemini-flash-latest}"
+  local url="https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent"
 
   local payload
   payload=$(jq -n \
     --arg prompt "$prompt" \
     --arg input "$input" \
     '{ contents: [
-        { role: "user", parts: [{ text: $prompt }] },
-        { role: "user", parts: [{ text: $input }] }
+        {
+          parts: [
+            { text: $prompt },
+            { text: $input }
+          ]
+        }
       ]
     }'
   )
 
   curl -sS "$url" \
     -H 'Content-Type: application/json' \
+    -H "X-goog-api-key: ${GEMINI_API_KEY}" \
     -X POST \
     -d "$payload" | jq -r '.candidates[0].content.parts[0].text'
 }
