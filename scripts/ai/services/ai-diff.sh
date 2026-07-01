@@ -9,19 +9,29 @@ source "${ai_root}/lib/request.sh"
 
 main() {
   local provider
-  provider=$(ai_resolve_provider "${AI_PROVIDER:-gemini}" "$@") || exit 1
+  provider=$(ai_resolve_provider "${AI_PROVIDER:-${DEFAULT_AI_PROVIDER:-}}" "$@") || exit 1
+  local model
+  model=$(ai_resolve_model "$provider" "$@") || exit 1
 
   local diff_output
-  diff_output=$(git diff --staged)
+  if [ ! -t 0 ]; then
+    diff_output=$(cat)
+  else
+    diff_output=""
+  fi
 
   if [ -z "$diff_output" ]; then
-    printf 'No staged change seen.\n'
+    diff_output=$(git diff)
+  fi
+
+  if [ -z "$diff_output" ]; then
+    printf 'No diff content seen.\n'
     exit 1
   fi
 
   local prompt
   prompt=$(cat <<'PROMPT'
-You are a senior code reviewer. Analyze the following unified git diff (from `git diff --staged`) and produce a structured, developer-oriented review.
+You are a senior code reviewer. Analyze the following unified git diff and produce a structured, developer-oriented review.
 
 Output format:
 ## Summary
@@ -53,7 +63,7 @@ PROMPT
   )
 
   prompt+=$(ai_language_directive '' 'Japanese' "$@")
-  AI_PROVIDER="$provider" ai_request "$prompt" "$diff_output"
+  ai_request_with_model "$provider" "$model" "$prompt" "$diff_output"
 }
 
 main "$@"

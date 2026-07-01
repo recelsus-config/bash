@@ -13,7 +13,7 @@ Usage: ai commit [options]
 
 Options:
   -l, --language <lang>       Language override
-  -p, --provider <provider>   AI provider (gemini, openai, chatgpt)
+  -p, --provider <provider>   AI provider (gemini, chatgpt, codex-cli, gemini-cli)
   -i, --ignore <path>         Omit a staged file from the diff sent to AI
   -id, --ignore-dir <path>    Omit staged files under a directory from the diff sent to AI
   --prompt <text>             Add an extra instruction for the commit message
@@ -89,7 +89,9 @@ format_ai_commit_status_line() {
 
 main() {
   local provider
-  provider=$(ai_resolve_provider "${AI_PROVIDER:-gemini}" "$@") || exit 1
+  provider=$(ai_resolve_provider "${AI_PROVIDER:-${DEFAULT_AI_PROVIDER:-}}" "$@") || exit 1
+  local model
+  model=$(ai_resolve_model "$provider" "$@") || exit 1
 
   local ignore_paths=()
   local ignore_dirs=()
@@ -125,6 +127,14 @@ main() {
           exit 1
         fi
         extra_prompts+=("$1")
+        ;;
+      -m|--model|-p|--provider|-l|--language)
+        local value_flag="$1"
+        shift
+        if [ $# -eq 0 ] || [[ "$1" = -* ]]; then
+          printf '[FAIL] The %s flag expects a value.\n' "$value_flag" >&2
+          exit 1
+        fi
         ;;
     esac
     shift
@@ -214,7 +224,7 @@ PROMPT
   fi
 
   local commit_message
-  if ! commit_message=$(AI_PROVIDER="$provider" ai_request "$prompt" "$diff_output"); then
+  if ! commit_message=$(ai_request_with_model "$provider" "$model" "$prompt" "$diff_output"); then
     printf '[FAIL] Failed to generate commit message.\n' >&2
     exit 1
   fi

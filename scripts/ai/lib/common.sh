@@ -75,7 +75,7 @@ ai_language_directive() {
 
 ai_resolve_provider() {
   local default_provider
-  default_provider=$(printf '%s' "${1:-gemini}" | tr '[:upper:]' '[:lower:]')
+  default_provider=$(printf '%s' "${1:-}" | tr '[:upper:]' '[:lower:]')
   shift
 
   local chosen="$default_provider"
@@ -89,7 +89,7 @@ ai_resolve_provider() {
           local flag_value
           flag_value=$(printf '%s' "$1" | tr '[:upper:]' '[:lower:]')
           case "$flag_value" in
-            gemini|openai|chatgpt)
+            gemini|chatgpt|codex-cli|gemini-cli)
               chosen="$flag_value"
               ;;
             *)
@@ -107,8 +107,13 @@ ai_resolve_provider() {
     shift
   done
 
+  if [ -z "$chosen" ]; then
+    printf "[FAIL] Please set DEFAULT_AI_PROVIDER o' pass -p/--provider.\n" >&2
+    return 1
+  fi
+
   case "$chosen" in
-    gemini|openai|chatgpt)
+    gemini|chatgpt|codex-cli|gemini-cli)
       ;;
     *)
       printf "[FAIL] Unknown AI provideh: %s\n" "$chosen" >&2
@@ -116,9 +121,91 @@ ai_resolve_provider() {
       ;;
   esac
 
-  if [ "$chosen" = "chatgpt" ]; then
-    chosen="openai"
+  printf '%s' "$chosen"
+}
+
+ai_resolve_model() {
+  local provider="$1"
+  shift
+
+  local chosen=""
+  case "$provider" in
+    gemini)
+      chosen="${GEMINI_MODEL:-}"
+      ;;
+    chatgpt)
+      chosen="${OPENAI_MODEL:-}"
+      ;;
+    codex-cli)
+      chosen="${CODEX_CLI_MODEL:-}"
+      ;;
+    gemini-cli)
+      chosen="${GEMINI_MODEL:-}"
+      ;;
+    *)
+      printf "[FAIL] Unknown AI provideh: %s\n" "$provider" >&2
+      return 1
+      ;;
+  esac
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      -m|--model)
+        local model_flag="$1"
+        shift
+        if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
+          chosen="$1"
+          shift
+          continue
+        fi
+        printf "[FAIL] The %s flag expects a model name.\n" "$model_flag" >&2
+        return 1
+        ;;
+    esac
+    shift
+  done
+
+  if [ -z "$chosen" ]; then
+    case "$provider" in
+      gemini)
+        printf "[FAIL] Please set GEMINI_MODEL o' pass -m/--model.\n" >&2
+        ;;
+      chatgpt)
+        printf "[FAIL] Please set OPENAI_MODEL o' pass -m/--model.\n" >&2
+        ;;
+      codex-cli|gemini-cli)
+        ;;
+    esac
+    case "$provider" in
+      codex-cli|gemini-cli)
+        ;;
+      *)
+        return 1
+        ;;
+    esac
   fi
+
+  printf '%s' "$chosen"
+}
+
+ai_resolve_to() {
+  local chosen=""
+
+  while [ $# -gt 0 ]; do
+    case "$1" in
+      --to)
+        shift
+        if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
+          chosen="$1"
+          shift
+          continue
+        fi
+        printf "[FAIL] The --to flag expects a value.\n" >&2
+        return 1
+        ;;
+    esac
+    shift
+  done
 
   printf '%s' "$chosen"
 }
@@ -133,6 +220,17 @@ ai_collect_positionals() {
         if [ $# -gt 0 ]; then
           shift
         fi
+        continue
+        ;;
+      -m|--model|--to)
+        shift
+        if [ $# -gt 0 ] && [[ "$1" != -* ]]; then
+          shift
+        fi
+        continue
+        ;;
+      --full)
+        shift
         continue
         ;;
       -l|--language)

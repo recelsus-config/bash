@@ -45,11 +45,12 @@
 - **任意**: `bat`（プレビュー時のシンタックスハイライト。未導入の場合は `nl` + `sed` にフォールバックします）。
 
 ### AI CLI (`scripts/ai/`)
-- **目的**: `ai` コマンドからコミット生成・レビュー・ドキュメント化・翻訳に加え、シェルコマンド提案（`ai cmd`）や Windows 変換（`ai win -m ps|cmd`）を呼び出す（Gemini / OpenAI を利用）。
-- **必須**: ネットワークアクセスと、環境変数に設定した各プロバイダの API キー（`GEMINI_API_KEY`、`OPENAI_API_KEY` など）。
+- **目的**: `ai` コマンドからコミット生成・レビュー・ドキュメント化・翻訳に加え、シェルコマンド提案と変換（`ai cmd --to win|cmd|ps`）を呼び出します（Gemini/ChatGPT API またはローカルの Codex/Gemini CLI を利用）。
+- **必須**: API provider ではネットワークアクセス、`DEFAULT_AI_PROVIDER` または `-p/--provider`、各プロバイダの API キー、および `-m/--model` を使わない場合の provider 別モデル変数（Gemini/Gemini CLI は `GEMINI_MODEL`、ChatGPT は `OPENAI_MODEL`、Codex CLI は `CODEX_CLI_MODEL`）。`codex-cli` と `gemini-cli` では対応する実行ファイルが `PATH` に必要です。
 - **任意**: なし。
 - **Commit ignores**: `ai commit -i logo.png -id images/` で指定した staged ファイルは差分本文を AI に送らず、ファイル名と追加・変更・削除などのステータスだけを送ります。`-i` と `-id` は混在でき、複数回指定できます。
 - **Commit prompts**: `ai commit --prompt "README.md は変更したことだけを書く"` でコミットメッセージ生成時の追加指示を渡せます。複数回指定できます。
+- **Provider status**: `ai providers` で API キーまたはローカル CLI の PATH の有無を表示し、設定済みモデルがあれば併記します。
 
 ### `git.sh`
 - **目的**: 登録済みの複数リポジトリに対し `git pull` を順次実行。

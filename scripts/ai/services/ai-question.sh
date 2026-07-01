@@ -9,7 +9,9 @@ source "${ai_root}/lib/request.sh"
 
 main() {
   local provider
-  provider=$(ai_resolve_provider "${AI_PROVIDER:-gemini}" "$@") || exit 1
+  provider=$(ai_resolve_provider "${AI_PROVIDER:-${DEFAULT_AI_PROVIDER:-}}" "$@") || exit 1
+  local model
+  model=$(ai_resolve_model "$provider" "$@") || exit 1
 
   local input=""
   local positional=""
@@ -21,7 +23,7 @@ main() {
   fi
 
   if [ -z "$input" ]; then
-    printf "Usage: echo 'your question' | ai question  or  ai question your question\n"
+    printf "Usage: echo 'your question' | ai q  or  ai q your question\n"
     exit 1
   fi
 
@@ -45,7 +47,7 @@ Rules:
 PROMPT
   )
 
-  AI_PROVIDER="$provider" ai_request "$prompt" "$input"
+  ai_request_with_model "$provider" "$model" "$prompt" "$input"
 }
 
 main "$@"

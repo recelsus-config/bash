@@ -10,30 +10,42 @@ Usage: ai <command> [options] [args]
 
 Commands:
   commit            Generate a commit message from staged diff
-  diff              Review staged diff content
-  doc               Produce focused docs fo' a snippet (use -m full fo' full mode)
-  question          Ask a free-fo'm question (stdin o' args)
-  translate (t)     Translate between Japanese and English
-  cmd               Suggest POSIX shell commands fo' the described task
-  win               Convert bash to Windows commands (-m ps | -m cmd)
+  diff              Review piped diff content, o' `git diff` when stdin is empty
+  doc               Produce focused docs fo' a snippet (use --full fo' full mode)
+  question (q)      Ask a free-fo'm question (stdin o' args)
+  translate (t, trans)
+                    Translate text; use --to <lang> to choose target
+  cmd               Suggest o' convert commands; use --to win|cmd|ps fo' Windows
+  providers         Show configured AI providers, models, and local CLI paths
 
 Flags:
   -h, --help        Show this help
-  -m <mode>         Mode selector (doc, win)
+  -m, --model <model>
+                    Model override
+  --to <target>     Target language fo' translate, target shell fo' cmd
   -l, --language <lang>
                     Language override fo' supported commands (commit/doc/diff/question/translate)
   -p, --provider <provider>
-                    AI provider (gemini, openai, chatgpt)
+                    AI provider (gemini, chatgpt, codex-cli, gemini-cli)
+
+Environment:
+  DEFAULT_AI_PROVIDER
+                    Default provider when -p/--provider is omitted
+  GEMINI_MODEL      Default model fo' gemini/gemini-cli; required fo' gemini unless -m/--model is passed
+  OPENAI_MODEL      Default model fo' chatgpt; required fo' chatgpt unless -m/--model is passed
+  CODEX_CLI_MODEL   Default model fo' codex-cli
 
 Examples:
   ai commit
   ai commit -i logo.png -id images/
   ai commit --prompt "Mention README.md only as changed"
   ai doc -l jpn "function foo() { }"
-  ai doc -m full -l jpn "function foo() { }"
+  ai doc --full -l jpn "function foo() { }"
   git diff | ai diff
+  ai translate --to de 'test text'
   ai cmd "./README.mdの中身を確認するには？"
-  ai win -m ps 'ls -la'
+  ai cmd 'ls -la' --to ps
+  ai providers
 USAGE
 }
 
@@ -56,6 +68,16 @@ main() {
   local command_args=("$@")
   local script_name=""
 
+  local raw_arg
+  if [ ${#command_args[@]} -gt 0 ]; then
+    for raw_arg in "${command_args[@]}"; do
+      if [ "$raw_arg" = "--mode" ]; then
+        printf "[FAIL] --mode has been removed. Use ai doc --full fo' full docs.\n" >&2
+        exit 1
+      fi
+    done
+  fi
+
   case "$command" in
     commit)
       script_name="ai-commit.sh"
@@ -68,26 +90,13 @@ main() {
       local filtered=()
       local idx=0
       local total=${#command_args[@]}
-      while [ $idx -lt $total ]; do
+      while [ $idx -lt "$total" ]; do
         local arg="${command_args[$idx]}"
         case "$arg" in
-          -m)
-            if [ $((idx + 1)) -lt $total ]; then
-              local mode_value="${command_args[$((idx + 1))]}"
-              local mode_lower
-              mode_lower=$(printf '%s' "$mode_value" | tr '[:upper:]' '[:lower:]')
-              if [ "$mode_lower" = "full" ]; then
-                use_full=1
-              else
-                printf "[FAIL] Unknown doc mode: %s\n" "$mode_value" >&2
-                exit 1
-              fi
-              idx=$((idx + 2))
-              continue
-            else
-              printf "[FAIL] The -m flag fo' ai doc needs a value.\n" >&2
-              exit 1
-            fi
+          --full)
+            use_full=1
+            idx=$((idx + 1))
+            continue
             ;;
           *)
             filtered+=("$arg")
@@ -112,70 +121,14 @@ main() {
     question|q)
       script_name="ai-question.sh"
       ;;
-    translate|t)
+    translate|t|trans)
       script_name="ai-translate.sh"
       ;;
     cmd)
       script_name="ai-cmd.sh"
       ;;
-    win)
-      local win_mode=""
-      local filtered=()
-      local idx=0
-      local total=${#command_args[@]}
-      while [ $idx -lt $total ]; do
-        local arg="${command_args[$idx]}"
-        case "$arg" in
-          -m)
-            if [ $((idx + 1)) -lt $total ]; then
-              local mode_value="${command_args[$((idx + 1))]}"
-              local mode_lower
-              mode_lower=$(printf '%s' "$mode_value" | tr '[:upper:]' '[:lower:]')
-              case "$mode_lower" in
-                ps)
-                  win_mode="ps"
-                  ;;
-                cmd)
-                  win_mode="cmd"
-                  ;;
-                *)
-                  printf "[FAIL] Unknown win mode: %s\n" "$mode_value" >&2
-                  exit 1
-                  ;;
-              esac
-              idx=$((idx + 2))
-              continue
-            else
-              printf "[FAIL] The -m flag fo' ai win needs a value.\n" >&2
-              exit 1
-            fi
-            ;;
-          *)
-            filtered+=("$arg")
-            idx=$((idx + 1))
-            continue
-            ;;
-        esac
-      done
-
-      case "$win_mode" in
-        ps)
-          script_name="ai-ps.sh"
-          ;;
-        cmd)
-          script_name="ai-win-cmd.sh"
-          ;;
-        "")
-          printf "[FAIL] Please specify -m ps o' -m cmd fo' ai win.\n" >&2
-          exit 1
-          ;;
-      esac
-
-      if [ ${#filtered[@]} -gt 0 ]; then
-        command_args=("${filtered[@]}")
-      else
-        command_args=()
-      fi
+    providers)
+      script_name="ai-providers.sh"
       ;;
     *)
       printf "[FAIL] Unknown command: %s\n" "$command" >&2
@@ -184,7 +137,11 @@ main() {
       ;;
   esac
 
-  set -- "${command_args[@]}"
+  if [ ${#command_args[@]} -gt 0 ]; then
+    set -- "${command_args[@]}"
+  else
+    set --
+  fi
 
   local target="${services_dir}/${script_name}"
 

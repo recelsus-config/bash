@@ -45,11 +45,12 @@ Each feature is optional; if a dependency is missing, only that feature will fai
 - **Optional**: `bat` for syntax-highlighted previews (falls back to `nl` + `sed`).
 
 ### AI CLI (`scripts/ai/`)
-- **Purpose**: `ai` command that dispatches to commit/doc/diff/question/translate helpers, a shell command suggester (`ai cmd`), and Windows converters (`ai win -m ps|cmd`) backed by Gemini or OpenAI APIs.
-- **Required**: Network access and provider-specific API keys defined in environment variables (`GEMINI_API_KEY`, `OPENAI_API_KEY`, etc.).
+- **Purpose**: `ai` command that dispatches to commit/doc/diff/question/translate helpers and a shell command suggester/converter (`ai cmd --to win|cmd|ps`) backed by Gemini/ChatGPT APIs or local Codex/Gemini CLIs.
+- **Required**: Network access for API providers, `DEFAULT_AI_PROVIDER` or `-p/--provider`, provider-specific API keys, and provider-specific model variables (`GEMINI_MODEL` for Gemini/Gemini CLI, `OPENAI_MODEL` for ChatGPT, `CODEX_CLI_MODEL` for Codex CLI) unless `-m/--model` is passed. `codex-cli` and `gemini-cli` require the corresponding executable in `PATH`.
 - **Optional**: None.
 - **Commit ignores**: `ai commit -i logo.png -id images/` omits those staged file diffs from the AI request while still sending their name/status summary. `-i` and `-id` can be mixed and repeated.
 - **Commit prompts**: `ai commit --prompt "Mention README.md only as changed"` appends extra commit-message instructions. Repeat the flag for multiple instructions.
+- **Provider status**: `ai providers` reports whether API keys or local CLI paths are present and shows configured models when set.
 
 ### `git.sh`
 - **Purpose**: Iterate over registered repositories and run `git pull`.

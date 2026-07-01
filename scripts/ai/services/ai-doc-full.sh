@@ -9,7 +9,9 @@ source "${ai_root}/lib/request.sh"
 
 main() {
   local provider
-  provider=$(ai_resolve_provider "${AI_PROVIDER:-gemini}" "$@") || exit 1
+  provider=$(ai_resolve_provider "${AI_PROVIDER:-${DEFAULT_AI_PROVIDER:-}}" "$@") || exit 1
+  local model
+  model=$(ai_resolve_model "$provider" "$@") || exit 1
 
   local args=("$@")
   local input=""
@@ -23,7 +25,7 @@ main() {
   fi
 
   if [ -z "$input" ]; then
-    printf "Usage: cat file.ts | ai doc -m full [-l lang]  or  ai doc -m full [-l lang] 'source code string'\n"
+    printf "Usage: cat file.ts | ai doc --full [-l lang]  or  ai doc --full [-l lang] 'source code string'\n"
     exit 1
   fi
 
@@ -65,7 +67,7 @@ PROMPT
   )
 
   prompt+=$(ai_language_directive '' 'Japanese' "${args[@]}")
-  AI_PROVIDER="$provider" ai_request "$prompt" "$input"
+  ai_request_with_model "$provider" "$model" "$prompt" "$input"
 }
 
 main "$@"
