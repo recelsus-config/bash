@@ -1,4 +1,27 @@
 # bash completion fo' ai CLI
+_ai_model_candidates() {
+  local candidates=""
+  local seen=" "
+  local model
+
+  for model in "${GEMINI_MODEL:-}" "${OPENAI_MODEL:-}" "${CODEX_CLI_MODEL:-}"; do
+    if [ -z "$model" ]; then
+      continue
+    fi
+
+    case "$seen" in
+      *" $model "*)
+        ;;
+      *)
+        candidates+="$model "
+        seen+="$model "
+        ;;
+    esac
+  done
+
+  printf '%s' "$candidates"
+}
+
 _ai_completion() {
   local cur prev
   COMPREPLY=()
@@ -42,7 +65,8 @@ _ai_completion() {
   local global_opts="-h --help -l --language -m --model -p --provider"
   local languages="english japanese french spanish german"
   local providers="gemini chatgpt codex-cli gemini-cli"
-  local models="gemini-2.5-flash gemini-3.5-flash gpt-4o-mini gpt-4o"
+  local models
+  models=$(_ai_model_candidates)
   local cmd_targets="win cmd ps"
 
   case "$command" in
